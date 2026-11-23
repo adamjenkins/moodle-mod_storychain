@@ -1,0 +1,155 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_storychain/student_state
+
+    What a student sees: their turn, the waiting screen, the teacher's presentation or the revealed stories.
+    Sentences are plain text and always escaped. Titles and headings come from format_string() and are HTML.
+
+    Context variables required for this template:
+    * status_writing, status_waiting, status_presenting, status_done, status_observer, status_nogroup - Which screen
+    * mysentences - Sentences the student has written
+    * showprogress - Whether sentence counts are shown
+    * chains - Chain summaries (number, title, sentencecount, inprogress, finished)
+    * turn - The student's turn (chainid, title, hasprevious, contextlabel, context: the last sentences shown, maxlength)
+    * presentation - What the teacher is showing (heading, items, position, total)
+    * showstories, stories - Revealed stories (heading, items)
+
+    Example context (json):
+    {
+        "status_waiting": true,
+        "mysentences": 2,
+        "showprogress": true,
+        "chains": [
+            {"number": 1, "title": "The lost key", "sentencecount": 4, "inprogress": true, "finished": false},
+            {"number": 2, "title": "", "sentencecount": 2, "inprogress": false, "finished": false}
+        ],
+        "turn": {"active": false},
+        "presentation": {"active": false, "items": []},
+        "showstories": true,
+        "stories": [
+            {"chainid": 3, "heading": "A rainy day", "items": [{"text": "It rained."}, {"text": "Then it stopped."}]}
+        ]
+    }
+}}
+<div class="mod-storychain-studentstate">
+    {{#status_nogroup}}
+        <div class="alert alert-info">{{#str}}nogroup, mod_storychain{{/str}}</div>
+    {{/status_nogroup}}
+
+    {{#status_writing}}
+        {{#turn}}
+            <section class="card mod-storychain-turn" aria-labelledby="mod-storychain-turn-heading">
+                <div class="card-body">
+                    <h3 class="h4" id="mod-storychain-turn-heading">{{#str}}yourturn, mod_storychain{{/str}}</h3>
+                    {{#title}}
+                        <p class="mod-storychain-turn-title">
+                            <span class="text-muted">{{#str}}storytitle, mod_storychain{{/str}}</span>
+                            <strong>{{{title}}}</strong>
+                        </p>
+                    {{/title}}
+                    {{#hasprevious}}
+                        <figure class="mod-storychain-previous">
+                            <figcaption class="small text-muted">{{contextlabel}}</figcaption>
+                            <blockquote class="mb-0">
+                                {{#context}}<p class="mb-1{{#isopening}} mod-storychain-openingline{{/isopening}}">{{text}}</p>{{/context}}
+                            </blockquote>
+                        </figure>
+                    {{/hasprevious}}
+                    {{^hasprevious}}
+                        <p class="mod-storychain-blank">{{#str}}blankpage, mod_storychain{{/str}}</p>
+                    {{/hasprevious}}
+                    <form data-region="sentence-form" data-chainid="{{chainid}}">
+                        <label class="form-label" for="mod-storychain-sentence">{{#str}}yoursentence, mod_storychain{{/str}}</label>
+                        <textarea class="form-control" id="mod-storychain-sentence" name="sentence" rows="3"
+                            maxlength="{{maxlength}}" data-region="sentence" required></textarea>
+                        <div class="d-flex flex-wrap justify-content-between gap-2 mt-2 small">
+                            <span class="text-muted" data-region="charcount"></span>
+                            <span class="mod-storychain-countdown" data-region="countdown"></span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <button type="submit" class="btn btn-primary" data-action="submit">{{#str}}addsentence, mod_storychain{{/str}}</button>
+                            <button type="button" class="btn btn-secondary" data-action="pass">{{#str}}passturn, mod_storychain{{/str}}</button>
+                        </div>
+                        <div class="text-danger mt-2" data-region="error" role="alert"></div>
+                    </form>
+                </div>
+            </section>
+        {{/turn}}
+    {{/status_writing}}
+
+    {{#status_presenting}}
+        {{#presentation}}
+            <section class="mod-storychain-presentation" aria-labelledby="mod-storychain-presentation-heading">
+                <p class="mod-storychain-showing"><span class="badge bg-info text-dark">{{#str}}teacherisshowing, mod_storychain{{/str}}</span></p>
+                <h3 class="h3" id="mod-storychain-presentation-heading">{{{heading}}}</h3>
+                <ol class="list-unstyled mod-storychain-story" aria-live="polite">
+                    {{#items}}
+                        <li{{#latest}} class="mod-storychain-latest"{{/latest}}>{{text}}</li>
+                    {{/items}}
+                </ol>
+                <p class="small text-muted">{{#str}}presentprogress, mod_storychain, { "position": {{position}}, "total": {{total}} }{{/str}}</p>
+            </section>
+        {{/presentation}}
+    {{/status_presenting}}
+
+    {{#status_waiting}}
+        <section class="mod-storychain-waiting" aria-labelledby="mod-storychain-waiting-heading">
+            <h3 class="h4" id="mod-storychain-waiting-heading">{{#str}}waitingforturn, mod_storychain{{/str}}</h3>
+            <p>{{#str}}waitingexplain, mod_storychain{{/str}}</p>
+        </section>
+    {{/status_waiting}}
+    {{#status_observer}}
+        <div class="alert alert-info">{{#str}}observer, mod_storychain{{/str}}</div>
+    {{/status_observer}}
+    {{#status_done}}
+        <div class="alert alert-success">{{#str}}allfinished, mod_storychain{{/str}}</div>
+    {{/status_done}}
+
+    {{^status_writing}}{{^status_presenting}}{{^status_nogroup}}
+        <ul class="list-unstyled mod-storychain-chains">
+            {{#chains}}
+                <li class="mod-storychain-chain">
+                    <span class="mod-storychain-chainname">{{#title}}{{{title}}}{{/title}}{{^title}}{{#str}}storyn, mod_storychain, {{number}}{{/str}}{{/title}}</span>
+                    {{#inprogress}}
+                        <span class="mod-storychain-writing">
+                            <span class="mod-storychain-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+                            <span>{{#str}}someoneiswriting, mod_storychain{{/str}}</span>
+                        </span>
+                    {{/inprogress}}
+                    {{#finished}}<span class="badge bg-secondary">{{#str}}statusfinished, mod_storychain{{/str}}</span>{{/finished}}
+                    {{#showprogress}}<span class="small text-muted">{{#str}}sentencecount, mod_storychain, {{sentencecount}}{{/str}}</span>{{/showprogress}}
+                </li>
+            {{/chains}}
+        </ul>
+        {{#mysentences}}<p class="small text-muted">{{#str}}mysentences, mod_storychain, {{mysentences}}{{/str}}</p>{{/mysentences}}
+    {{/status_nogroup}}{{/status_presenting}}{{/status_writing}}
+
+    {{#showstories}}
+        <section class="mod-storychain-stories" aria-labelledby="mod-storychain-stories-heading">
+            <h3 class="h4" id="mod-storychain-stories-heading">{{#str}}revealedstories, mod_storychain{{/str}}</h3>
+            {{#stories}}
+                <article class="card mb-3">
+                    <div class="card-body">
+                        <h4 class="h5">{{{heading}}}</h4>
+                        <p class="mod-storychain-storytext mb-0">{{#items}}<span>{{text}}</span> {{/items}}</p>
+                    </div>
+                </article>
+            {{/stories}}
+        </section>
+    {{/showstories}}
+</div>

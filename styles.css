@@ -1,0 +1,144 @@
+.mod-storychain-chains {
+    display: grid;
+    gap: 0.5rem;
+    max-width: 40rem;
+}
+
+.mod-storychain-chain {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-body-bg);
+}
+
+.mod-storychain-chainname {
+    font-weight: bold;
+}
+
+.mod-storychain-writing {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.mod-storychain-dots {
+    display: inline-flex;
+    gap: 0.2rem;
+}
+
+.mod-storychain-dots span {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background-color: currentColor;
+    opacity: 0.3;
+    animation: mod-storychain-dot 1200ms infinite ease-in-out;
+}
+
+.mod-storychain-dots span:nth-child(2) {
+    animation-delay: 200ms;
+}
+
+.mod-storychain-dots span:nth-child(3) {
+    animation-delay: 400ms;
+}
+
+@keyframes mod-storychain-dot {
+    0%,
+    80%,
+    100% {
+        opacity: 0.3;
+        transform: translateY(0);
+    }
+
+    40% {
+        opacity: 1;
+        transform: translateY(-0.2rem);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mod-storychain-dots span {
+        animation: none;
+        opacity: 0.7;
+    }
+}
+
+.mod-storychain-turn {
+    max-width: 40rem;
+}
+
+.mod-storychain-previous blockquote,
+.mod-storychain-blank {
+    font-size: 1.25rem;
+    font-style: italic;
+    padding: 0.75rem 1rem;
+    border-left: 0.25rem solid var(--bs-primary);
+    background-color: var(--bs-tertiary-bg);
+}
+
+.mod-storychain-story li,
+.mod-storychain-present-story li {
+    margin-bottom: 0.5rem;
+}
+
+.mod-storychain-story li {
+    font-size: 1.25rem;
+}
+
+.mod-storychain-latest {
+    font-weight: bold;
+}
+
+.mod-storychain-storytext {
+    font-size: 1.1rem;
+}
+
+.mod-storychain-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    gap: 1rem;
+}
+
+.mod-storychain-sentences li {
+    margin-bottom: 0.35rem;
+}
+
+.mod-storychain-hidden .mod-storychain-sentencetext {
+    text-decoration: line-through;
+    color: var(--bs-secondary-color);
+}
+
+.mod-storychain-presentview {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+@media (min-width: 992px) {
+    .mod-storychain-presentview {
+        grid-template-columns: minmax(0, 1fr) 16rem;
+        padding: 2rem;
+    }
+}
+
+.mod-storychain-present-heading {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.mod-storychain-present-story li {
+    font-size: 2rem;
+    line-height: 1.4;
+    color: var(--bs-secondary-color);
+}
+
+.mod-storychain-present-story li.mod-storychain-latest {
+    color: var(--bs-body-color);
+    font-weight: normal;
+}

@@ -1,0 +1,102 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_storychain/teacher_state
+
+    Every chain of the group in full, with the teacher's controls. Authors are never shown.
+
+    Context variables required for this template:
+    * online, eligible - Writers online and enrolled
+    * presenturl - The presenter page for this group (chainid is appended)
+    * chains - The chains
+
+    Example context (json):
+    {
+        "online": 4,
+        "eligible": 6,
+        "presenturl": "https://example.com/mod/storychain/present.php?id=12&group=0",
+        "chains": [
+            {
+                "id": 7, "number": 1, "heading": "The lost key", "statuslabel": "Being written",
+                "writing": true, "finished": false, "revealed": false, "presenting": false,
+                "inprogress": true, "secondsleft": 75, "hasopening": true, "opening": "Once upon a time.",
+                "sentencecount": 1,
+                "sentences": [{"id": 31, "seq": 1, "content": "A key fell.", "hidden": false}]
+            }
+        ]
+    }
+}}
+<div class="mod-storychain-teacherstate">
+    <p class="text-muted">{{#str}}onlinecount, mod_storychain, { "online": {{online}}, "eligible": {{eligible}} }{{/str}}</p>
+    <div class="mod-storychain-grid">
+        {{#chains}}
+            <section class="card mod-storychain-teacherchain" aria-labelledby="mod-storychain-chain-{{id}}">
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <h3 class="h5 mb-0" id="mod-storychain-chain-{{id}}">{{{heading}}}</h3>
+                    <span class="badge {{#writing}}bg-primary{{/writing}}{{#finished}}bg-warning text-dark{{/finished}}{{#revealed}}bg-success{{/revealed}}">{{statuslabel}}</span>
+                </div>
+                <div class="card-body">
+                    {{#inprogress}}
+                        <p class="small mod-storychain-writing">
+                            <span class="mod-storychain-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+                            <span>{{#str}}someoneiswriting, mod_storychain{{/str}}</span>
+                            <span class="text-muted" data-region="secondsleft" data-chainid="{{id}}">{{#str}}secondsleft, mod_storychain, {{secondsleft}}{{/str}}</span>
+                        </p>
+                    {{/inprogress}}
+                    {{#writing}}{{^inprogress}}
+                        <p class="small text-muted">{{#str}}waitingforwriter, mod_storychain{{/str}}</p>
+                    {{/inprogress}}{{/writing}}
+                    {{#presenting}}<p class="small"><span class="badge bg-info text-dark">{{#str}}presentingnow, mod_storychain{{/str}}</span></p>{{/presenting}}
+                    {{#hasopening}}
+                        <p class="mod-storychain-opening"><span class="small text-muted">{{#str}}openingsentence, mod_storychain{{/str}}</span><br>{{opening}}</p>
+                    {{/hasopening}}
+                    {{#sentencecount}}
+                        <ol class="mod-storychain-sentences">
+                            {{#sentences}}
+                                <li class="{{#hidden}}mod-storychain-hidden{{/hidden}}">
+                                    <span class="mod-storychain-sentencetext">{{content}}</span>
+                                    {{#hidden}}<span class="badge bg-secondary">{{#str}}hiddenbyteacher, mod_storychain{{/str}}</span>{{/hidden}}
+                                    {{#hidden}}
+                                        <button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-action="unhide" data-sentenceid="{{id}}">{{#str}}showsentence, mod_storychain, {{seq}}{{/str}}</button>
+                                    {{/hidden}}
+                                    {{^hidden}}
+                                        <button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-action="hide" data-sentenceid="{{id}}">{{#str}}hidesentence, mod_storychain, {{seq}}{{/str}}</button>
+                                    {{/hidden}}
+                                </li>
+                            {{/sentences}}
+                        </ol>
+                    {{/sentencecount}}
+                    {{^sentencecount}}
+                        <p class="small text-muted">{{#str}}nosentences, mod_storychain{{/str}}</p>
+                    {{/sentencecount}}
+                </div>
+                <div class="card-footer d-flex flex-wrap gap-2">
+                    {{#writing}}
+                        <button type="button" class="btn btn-secondary btn-sm" data-action="close" data-chainid="{{id}}">{{#str}}closechain, mod_storychain{{/str}}</button>
+                    {{/writing}}
+                    {{^writing}}
+                        <a class="btn btn-primary btn-sm" href="{{presenturl}}&amp;chainid={{id}}">{{#str}}present, mod_storychain{{/str}}</a>
+                        {{^revealed}}
+                            <button type="button" class="btn btn-secondary btn-sm" data-action="reveal" data-chainid="{{id}}">{{#str}}reveal, mod_storychain{{/str}}</button>
+                        {{/revealed}}
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-action="reopen" data-chainid="{{id}}">{{#str}}reopenchain, mod_storychain{{/str}}</button>
+                    {{/writing}}
+                </div>
+            </section>
+        {{/chains}}
+    </div>
+</div>
